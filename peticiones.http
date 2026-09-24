@@ -1,0 +1,168 @@
+### Practica 6 - Inscripciones al gimnasio (SOLUCION)
+###
+### COMO SE USA:
+###   1. Extension "REST Client" (humao.rest-client) en VS Code.
+###   2. npm run start:dev
+###   3. Clic en "Send Request" arriba de cada peticion.
+###
+### OJO: el orden importa. El horario 1 tiene cupoMaximo = 2, asi que las
+### peticiones 1, 2 y 3 hay que correrlas EN ORDEN para ver el 409.
+### Todo vive en memoria: si reinicias el servidor, vuelve a cero.
+
+@host = http://localhost:3000
+
+### 1. Primera inscripcion  ->  201 + header Location
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{ "horarioId": 1, "miembroId": 1 }
+
+
+### 2. Segunda inscripcion, se llena el cupo  ->  201
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{ "horarioId": 1, "miembroId": 2 }
+
+
+### 3. REGLA 1 - tercera inscripcion  ->  409 cupo lleno
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{ "horarioId": 1, "miembroId": 3 }
+
+
+### 4. REGLA 2 - el miembro 1 otra vez  ->  409 duplicada
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{ "horarioId": 1, "miembroId": 1 }
+
+
+### 5. Un horario que no existe  ->  404
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{ "horarioId": 99, "miembroId": 1 }
+
+
+### 6. Un miembro que no existe  ->  404
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{ "horarioId": 3, "miembroId": 99 }
+
+
+### 7. Cuerpo mal formado  ->  400, NO 409
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{ "horarioId": "hola" }
+
+
+### 8. Listar todas  ->  200
+GET {{host}}/inscripciones
+
+
+### 9. Cancelar la primera  ->  200 con estado "cancelada"
+DELETE {{host}}/inscripciones/1
+
+
+### 10. EL REMATE DE LA CLASE  ->  201
+###     Es la MISMA peticion de la #3, que dio 409.
+###     Ahora da 201 porque la cancelacion libero el lugar.
+POST {{host}}/inscripciones
+Content-Type: application/json
+
+{ "horarioId": 1, "miembroId": 3 }
+
+
+### ================================================================
+### Semana 4 - Refuerzo: Clases reestructurada, Miembros (en clase)
+### y Horarios (Asignacion)
+### ================================================================
+
+### 11. Clases - listar (las dos del seed)  ->  200
+GET {{host}}/clases
+
+
+### 12. Clases - crear  ->  201
+POST {{host}}/clases
+Content-Type: application/json
+
+{ "nombre": "Funcional" }
+
+
+### 13. Clases - buscar por id  ->  200
+GET {{host}}/clases/3
+
+
+### 14. Clases - actualizar el nombre (PATCH)  ->  200
+PATCH {{host}}/clases/3
+Content-Type: application/json
+
+{ "nombre": "Funcional Avanzado" }
+
+
+### 15. Clases - un id que no existe  ->  404
+GET {{host}}/clases/99
+
+
+### 16. Clases - eliminar  ->  200
+DELETE {{host}}/clases/3
+
+
+### 17. Miembros - listar (los tres del seed)  ->  200
+GET {{host}}/miembros
+
+
+### 18. Miembros - crear  ->  201
+POST {{host}}/miembros
+Content-Type: application/json
+
+{ "nombre": "Luis Prueba", "correo": "luis@itson.mx", "membresia": "basica" }
+
+
+### 19. Miembros - buscar por id  ->  200
+GET {{host}}/miembros/4
+
+
+### 20. Miembros - dar de baja (PATCH activo:false)  ->  200
+PATCH {{host}}/miembros/4
+Content-Type: application/json
+
+{ "activo": false }
+
+
+### 21. Miembros - un id que no existe  ->  404
+GET {{host}}/miembros/99
+
+
+### 22. Miembros - eliminar  ->  200
+DELETE {{host}}/miembros/4
+
+
+### 23. Horarios - listar (los tres del seed)  ->  200
+GET {{host}}/horarios
+
+
+### 24. Horarios - crear  ->  201
+POST {{host}}/horarios
+Content-Type: application/json
+
+{ "claseId": 2, "dia": "jueves", "horaInicio": "18:00", "cupoMaximo": 5, "entrenador": "Luis Fierro" }
+
+
+### 25. Horarios - actualizar el cupo  ->  200
+PATCH {{host}}/horarios/4
+Content-Type: application/json
+
+{ "cupoMaximo": 6 }
+
+
+### 26. Horarios - un id que no existe  ->  404
+GET {{host}}/horarios/99
+
+
+### 27. Horarios - eliminar  ->  200
+DELETE {{host}}/horarios/4

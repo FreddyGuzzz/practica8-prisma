@@ -1,0 +1,1 @@
+export const CLASE_REPOSITORY = 'CLASE_REPOSITORY';
